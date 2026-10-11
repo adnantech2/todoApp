@@ -67,12 +67,12 @@ function createAuthRouter({ db, config }) {
     const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
     let result;
     try {
-      [result] = await db.execute(
-        "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
+      [, result] = await db.execute(
+        "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?) RETURNING user_id AS id",
         [name, email, passwordHash],
       );
     } catch (error) {
-      if (error.code === "ER_DUP_ENTRY") throw new HttpError(409, "An account with this email already exists.");
+      if (error.code === "23505") throw new HttpError(409, "An account with this email already exists.");
       throw error;
     }
     const user = await startSession(request, { user_id: result.insertId, name, email });

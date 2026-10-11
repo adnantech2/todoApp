@@ -135,9 +135,7 @@ function createTaskRouter({ db }) {
     // tzOffset = minutes east of UTC (e.g. 300 for UTC+5), sent by the browser.
     const tzOffset = Number(request.query.tzOffset || 0);
     if (!Number.isInteger(tzOffset) || Math.abs(tzOffset) > 14 * 60) throw new HttpError(400, "tzOffset must be minutes between -840 and 840.");
-    const sign = tzOffset < 0 ? "-" : "+";
-    const utcOffset = `${sign}${String(Math.floor(Math.abs(tzOffset) / 60)).padStart(2, "0")}:${String(Math.abs(tzOffset) % 60).padStart(2, "0")}`;
-    response.json({ stats: await repository.getStats(db, userIdOf(request), today, { from, to }, utcOffset) });
+    response.json({ stats: await repository.getStats(db, userIdOf(request), today, { from, to }, tzOffset) });
   }));
 
   return router;
