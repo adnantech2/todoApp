@@ -22,7 +22,7 @@ function splitStatements(sql) {
  * 2. Each file in database/migrations runs once, in name order, and is recorded
  *    in the schema_migrations table so it is never applied twice.
  *
- * @param {import("mysql2/promise").Connection} connection
+ * @param {import("pg").Client} connection
  * @returns {Promise<string[]>} the migrations applied by this run
  */
 async function migrate(connection) {
@@ -31,11 +31,11 @@ async function migrate(connection) {
   }
   await connection.query(`CREATE TABLE IF NOT EXISTS schema_migrations (
     version VARCHAR(100) NOT NULL,
-    applied_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    applied_at TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'utc'),
     PRIMARY KEY (version)
-  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+  )`);
 
-  const [rows] = await connection.query("SELECT version FROM schema_migrations");
+  const { rows } = await connection.query("SELECT version FROM schema_migrations");
   const applied = new Set(rows.map((row) => row.version));
   const files = (await fs.readdir(MIGRATIONS_DIR)).filter((file) => file.endsWith(".sql")).sort();
   const newlyApplied = [];
@@ -46,7 +46,7 @@ async function migrate(connection) {
     for (const statement of splitStatements(sql)) {
       await connection.query(statement);
     }
-    await connection.query("INSERT INTO schema_migrations (version) VALUES (?)", [file]);
+    await connection.query("INSERT INTO schema_migrations (version) VALUES ($1)", [file]);
     newlyApplied.push(file);
   }
   return newlyApplied;
