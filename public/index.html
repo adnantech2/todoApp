@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101d3b">
+    <meta name="description" content="A simple, focused task management dashboard for your day.">
+    <title>TodoApp — Plan, focus, achieve</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23536ef2'/%3E%3Cpath d='m6 12.5 4 4L18 8' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <!-- Shown until the user is signed in -->
+    <main class="auth-gate" id="auth-gate">
+      <section class="auth-card">
+        <span class="brand-mark auth-brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.3 4.2L19 7"/></svg></span>
+        <p class="auth-eyebrow">MUIT · BCA PROJECT</p>
+        <h1>Welcome to TodoApp</h1>
+        <p class="auth-intro">Sign in to manage your tasks, or create a free account to get started.</p>
+        <p class="auth-status" id="auth-status" role="status"><span class="spinner" aria-hidden="true"></span>Connecting to the TodoApp server…</p>
+        <p class="auth-error hidden" id="auth-error" role="alert"></p>
+        <div class="auth-gate-actions"><button class="primary-button" id="gate-login">Sign in</button><button class="secondary-button" id="gate-register">Create an account</button></div>
+        <button class="auth-retry hidden" id="auth-retry">Retry connection</button>
+        <p class="auth-footnote">Your tasks are private to your account and stored in the project database.</p>
+      </section>
+    </main>
+
+    <div class="app-shell hidden" id="app-shell">
+      <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+        <a class="brand" href="#" aria-label="TodoApp dashboard">
+          <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.3 4.2L19 7"/></svg></span>
+          <span class="brand-copy"><strong>TodoApp</strong><small>Plan <i>·</i> Focus <i>·</i> Achieve</small></span>
+        </a>
+
+        <nav class="primary-nav">
+          <button class="nav-link active" data-view="dashboard"><span class="nav-icon" aria-hidden="true">⌂</span><span class="nav-text">Dashboard</span></button>
+          <button class="nav-link" data-view="all"><span class="nav-icon" aria-hidden="true">☷</span><span class="nav-text">All Tasks</span><span class="nav-count" id="all-count">0</span></button>
+          <button class="nav-link" data-view="pending"><span class="nav-icon" aria-hidden="true">◷</span><span class="nav-text">Pending</span><span class="nav-count" id="pending-count">0</span></button>
+          <button class="nav-link" data-view="completed"><span class="nav-icon" aria-hidden="true">✓</span><span class="nav-text">Completed</span><span class="nav-count" id="completed-count">0</span></button>
+          <button class="nav-link" data-view="important"><span class="nav-icon" aria-hidden="true">★</span><span class="nav-text">Important</span><span class="nav-count" id="important-count">0</span></button>
+          <button class="nav-link" data-view="today"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-text">Today</span><span class="nav-count" id="today-count">0</span></button>
+          <button class="nav-link" data-view="upcoming"><span class="nav-icon" aria-hidden="true">➔</span><span class="nav-text">Next 7 Days</span><span class="nav-count" id="upcoming-count">0</span></button>
+          <button class="nav-link" data-view="overdue"><span class="nav-icon" aria-hidden="true">⚠</span><span class="nav-text">Overdue</span><span class="nav-count nav-count-danger" id="overdue-count">0</span></button>
+          <button class="nav-link project-nav-link" id="project-nav-button"><span class="nav-icon" aria-hidden="true">◇</span><span class="nav-text">Project Synopsis</span></button>
+        </nav>
+
+        <div class="sidebar-divider"></div>
+        <div class="section-label">CATEGORIES</div>
+        <nav class="category-nav" id="category-nav" aria-label="Task categories"></nav>
+
+        <div class="sidebar-divider"></div>
+        <div class="section-label">TAGS</div>
+        <div class="tag-cloud" id="tag-cloud" aria-label="Task tags"></div>
+
+        <div class="sidebar-bottom">
+          <button class="theme-switch" id="theme-toggle" aria-pressed="false">
+            <span aria-hidden="true">☼</span><span aria-hidden="true">☾</span><span class="theme-label">Dark Mode</span><span class="switch-track"><i></i></span>
+          </button>
+          <div class="sidebar-quote"><span aria-hidden="true">“</span><p>Small steps every day<br>lead to big results.</p><span class="quote-spark" aria-hidden="true">✳</span></div>
+        </div>
+      </aside>
+      <div class="sidebar-overlay hidden" id="sidebar-overlay"></div>
+
+      <main class="main-area" id="main-content" tabindex="-1">
+        <header class="topbar">
+          <button class="icon-button menu-button" id="menu-button" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">☰</button>
+          <label class="search-box">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg>
+            <input id="search-input" type="search" placeholder="Search tasks, descriptions, tags..." aria-label="Search tasks" maxlength="100" autocomplete="off">
+            <kbd>Ctrl K</kbd>
+          </label>
+          <div class="topbar-actions">
+            <div class="notification-wrap">
+              <button class="icon-button notification-button" id="notifications-button" aria-label="Show reminders" aria-expanded="false" aria-controls="notification-panel"><span aria-hidden="true">🔔</span><i class="hidden" id="notification-dot"></i></button>
+              <div class="dropdown notification-panel hidden" id="notification-panel" role="region" aria-label="Reminders"></div>
+            </div>
+            <div class="profile-wrap">
+              <button class="profile-button" id="profile-button" aria-expanded="false" aria-controls="profile-menu">
+                <span class="avatar" id="profile-avatar">?</span><span class="profile-name" id="profile-name"></span><span class="chevron" aria-hidden="true">⌄</span>
+              </button>
+              <div class="dropdown profile-menu hidden" id="profile-menu">
+                <strong id="menu-profile-name"></strong><span id="menu-profile-email"></span>
+                <button id="settings-menu-button">Settings</button>
+                <button id="about-button">About this project</button>
+                <button id="shortcuts-button">Keyboard shortcuts</button>
+                <button id="logout-button" class="logout-button">Sign out</button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div class="dashboard-grid">
+          <section class="primary-column">
+            <section class="welcome-row">
+              <div><h1 id="greeting">Hello! <span aria-hidden="true">👋</span></h1><p id="welcome-text">Here's what's happening with your tasks today.</p></div>
+              <div class="date-hello"><span id="today-label"></span><small>Keep going, you're doing great!</small><span class="tiny-mountain" aria-hidden="true">▲</span></div>
+            </section>
+
+            <section class="stat-grid" aria-label="Task summary">
+              <button class="stat-card" data-view="all"><div class="stat-icon blue-icon" aria-hidden="true">☷</div><div class="stat-copy"><span>Total Tasks</span><strong id="stat-total">–</strong><small><span id="stat-week">0</span> due this week</small></div></button>
+              <button class="stat-card" data-view="completed"><div class="stat-icon green-icon" aria-hidden="true">✓</div><div class="stat-copy"><span>Completed</span><strong id="stat-completed">–</strong><small><span id="completion-rate">0</span>% done</small></div></button>
+              <button class="stat-card" data-view="pending"><div class="stat-icon orange-icon" aria-hidden="true">◷</div><div class="stat-copy"><span>Pending</span><strong id="stat-pending">–</strong><small><span id="stat-in-progress">0</span> in progress</small></div></button>
+              <button class="stat-card" data-view="overdue"><div class="stat-icon red-icon" aria-hidden="true">⚠</div><div class="stat-copy"><span>Overdue</span><strong id="stat-overdue">–</strong><small><span id="stat-due-today">0</span> due today</small></div></button>
+              <button class="stat-card" data-view="important"><div class="stat-icon pink-icon" aria-hidden="true">★</div><div class="stat-copy"><span>Important</span><strong id="stat-important">–</strong><small>Starred tasks</small></div></button>
+            </section>
+
+            <section class="insight-grid" id="insight-grid" aria-label="Insights">
+              <article class="widget">
+                <h2>Open tasks by priority</h2>
+                <div class="priority-bars" id="priority-bars"></div>
+              </article>
+              <article class="widget">
+                <h2>Completed this week <span class="widget-note" id="week-completed-total"></span></h2>
+                <div class="trend-chart" id="trend-chart" role="img" aria-label="Tasks completed per day over the last 7 days"></div>
+              </article>
+            </section>
+
+            <section class="tasks-panel" aria-labelledby="task-heading">
+              <div class="panel-heading">
+                <div><h2 id="task-heading">My Tasks</h2><span class="task-subtitle" id="task-subtitle">A little progress goes a long way</span></div>
+                <div class="task-toolbar">
+                  <div class="filter-tabs" role="group" aria-label="Filter tasks by status">
+                    <button class="filter-tab selected" data-status="all" aria-pressed="true">All</button>
+                    <button class="filter-tab" data-status="Pending" aria-pressed="false">Pending</button>
+                    <button class="filter-tab" data-status="In Progress" aria-pressed="false">In Progress</button>
+                    <button class="filter-tab" data-status="Completed" aria-pressed="false">Completed</button>
+                  </div>
+                  <button class="add-button" id="add-task-button"><span aria-hidden="true">＋</span> Add Task</button>
+                </div>
+              </div>
+
+              <div class="filter-bar">
+                <label class="select-control"><span>Priority</span>
+                  <select id="priority-filter"><option value="">Any</option><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select>
+                </label>
+                <label class="select-control"><span>Sort by</span>
+                  <select id="sort-select">
+                    <option value="dueDate">Due date</option><option value="priority">Priority</option><option value="createdAt">Date created</option>
+                    <option value="updatedAt">Last updated</option><option value="title">Title</option><option value="status">Status</option>
+                  </select>
+                </label>
+                <button class="order-button" id="order-button" aria-label="Sort ascending" title="Toggle sort direction">↑</button>
+                <label class="select-control"><span>Show</span>
+                  <select id="page-size"><option>10</option><option selected>20</option><option>50</option></select>
+                </label>
+                <div class="active-filters" id="active-filters" aria-live="polite"></div>
+              </div>
+
+              <div class="task-list" id="task-list" aria-live="polite" aria-busy="false"></div>
+
+              <nav class="pagination hidden" id="pagination" aria-label="Task pages">
+                <button class="page-button" id="previous-page">‹ Previous</button>
+                <span id="page-info"></span>
+                <button class="page-button" id="next-page">Next ›</button>
+              </nav>
+            </section>
+          </section>
+
+          <aside class="right-column">
+            <section class="widget progress-widget">
+              <h2>Task Progress</h2>
+              <div class="progress-content">
+                <div class="progress-ring" id="progress-ring"><div><strong id="progress-percent">0%</strong><span>Completed</span></div></div>
+                <div class="progress-legend">
+                  <div><i class="legend-dot done-dot"></i><span>Completed</span><strong id="legend-completed">0</strong></div>
+                  <div><i class="legend-dot pending-dot"></i><span>Pending</span><strong id="legend-pending">0</strong></div>
+                  <div><i class="legend-dot progress-dot"></i><span>In Progress</span><strong id="legend-in-progress">0</strong></div>
+                  <div><i class="legend-dot total-dot"></i><span>Total</span><strong id="legend-total">0</strong></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="widget calendar-widget">
+              <div class="calendar-heading"><h2><span aria-hidden="true">▣</span><span id="calendar-month"></span></h2><div><button id="previous-month" aria-label="Previous month">‹</button><button id="next-month" aria-label="Next month">›</button></div></div>
+              <div class="calendar-grid" id="calendar-grid" aria-label="Calendar — select a date to see tasks due that day"></div>
+            </section>
+
+            <section class="widget quick-widget">
+              <h2>Quick Actions</h2>
+              <div class="quick-grid">
+                <button class="quick-action" id="quick-add"><span class="quick-icon quick-purple" aria-hidden="true">＋</span>Add Task</button>
+                <button class="quick-action" id="quick-filter"><span class="quick-icon quick-blue" aria-hidden="true">▽</span>Filter</button>
+                <button class="quick-action" id="quick-sort"><span class="quick-icon quick-green" aria-hidden="true">↕</span>Sort</button>
+                <button class="quick-action" id="quick-settings"><span class="quick-icon quick-gray" aria-hidden="true">⚙</span>Settings</button>
+              </div>
+            </section>
+
+            <section class="consistency-card">
+              <div><strong>Stay consistent</strong><p id="consistency-text">You're one step closer to your goals!</p></div><span class="consistency-mountain" aria-hidden="true">▲</span>
+            </section>
+            <section class="team-note"><span class="team-note-icon" aria-hidden="true">✦</span><div><strong>Built for better days</strong><p>A student project by the MUIT BCA team.</p><button id="team-link">Meet the project team <span aria-hidden="true">→</span></button></div></section>
+          </aside>
+        </div>
+      </main>
+    </div>
+
+    <!-- Task details drawer -->
+    <div class="drawer-backdrop hidden" id="drawer-backdrop"></div>
+    <aside class="drawer hidden" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+      <div class="drawer-heading">
+        <div><span class="modal-eyebrow">TASK DETAILS</span><h2 id="drawer-title">Task</h2></div>
+        <button class="modal-close" id="drawer-close" aria-label="Close task details">×</button>
+      </div>
+      <div id="drawer-content" class="drawer-content"></div>
+    </aside>
+
+    <!-- Shared modal (task form, sign in, settings, project synopsis) -->
+    <div class="modal-backdrop hidden" id="modal-backdrop">
+      <section class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-heading"><div><span class="modal-eyebrow" id="modal-eyebrow">YOUR WORKSPACE</span><h2 id="modal-title">Add a task</h2></div><button class="modal-close" id="modal-close" aria-label="Close dialog">×</button></div>
+        <div id="modal-content"></div>
+      </section>
+    </div>
+
+    <!-- Confirmation dialog -->
+    <div class="modal-backdrop confirm-backdrop hidden" id="confirm-backdrop">
+      <section class="modal confirm-modal" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+        <h2 id="confirm-title">Are you sure?</h2>
+        <p id="confirm-message"></p>
+        <div class="form-actions"><button class="secondary-button" id="confirm-cancel">Cancel</button><button class="primary-button" id="confirm-ok">Confirm</button></div>
+      </section>
+    </div>
+
+    <div class="toast-region" id="toast-region" aria-live="polite"></div>
+    <noscript><p class="noscript">TodoApp needs JavaScript enabled to run.</p></noscript>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
