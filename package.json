@@ -1,0 +1,28 @@
+{
+  "name": "muit-todo-list-management-system",
+  "version": "2.0.0",
+  "private": true,
+  "description": "MUIT BCA To-Do List Management System",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "db:setup": "node database/setup.js",
+    "db:migrate": "node database/setup.js",
+    "test": "node --test",
+    "test:integration": "node --test test/api.integration.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.8.2",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "express-session": "^1.18.1",
+    "helmet": "^8.0.0",
+    "mysql2": "^3.24.5"
+  }
+}
